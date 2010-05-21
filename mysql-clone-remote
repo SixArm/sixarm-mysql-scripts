@@ -1,0 +1,20 @@
+#!/bin/sh
+#
+# Command:
+#   mysql-clone-remote
+#    <src_database_host> <src_database_username> <src_database_password> <src_database_name>
+#    <dst_ssh_user>  <dst_database_username> <dst_database_password> <dst_database_name>
+#
+# Example:
+#   mysql-clone-remote localhost joe secret apples joe@foo.com jdoe mystery oranges 
+
+src_hostname=$1
+src_username=$2
+src_password=$3
+src_database=$4
+dst_ssh_user=$5
+dst_username=$6
+dst_password=$7
+dst_database=$8
+
+mysqldump --host=$src_hostname --user=$src_username --password=$src_password $src_database | ssh -C $ssh_user "mysql --user=$dst_username --password=$dst_password $dst_db_name"

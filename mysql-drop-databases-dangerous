@@ -1,0 +1,1 @@
+mysql -uroot -e 'show databases' --batch | grep $1 | xargs -I{} mysql -uroot -e 'drop database {}'

@@ -1,0 +1,26 @@
+#!/bin/sh
+#
+# Syntax:
+#   mysql-show-all-columns <username> <password> <database> <where>
+#
+# Example: show columns named 'active'
+#   mysql-show-all-columns joe secret db "field like 'active'"
+#
+# Example: show columns named "%_id" that are not indexed:
+#   mysql-show-all-columns joe secret db "field like '%_id' and \`key\` like ''" 
+##
+
+username=$1
+password=$2
+database=$3
+conditions=$4
+
+mysqle="mysql -u $username -p$password --database $database --batch --skip-column-names -e"
+
+for table in `$mysqle 'show tables'`
+do
+  for column in `$mysqle "show columns from ${table} where ${conditions};" | awk -F "\t" '{print $1}'`
+  do
+   echo $table $column
+  done 
+done

@@ -1,0 +1,36 @@
+MySQL Tips
+
+
+== Admin
+
+To create a user in MySQL:
+  CREATE USER your_user IDENTIFIED BY 'password'
+
+Example:
+  CREATE USER yourname@localhost IDENTIFIED BY 'secret'
+
+To set password:
+  SET PASSWORD FOR 'joe'@'localhost' = PASSWORD('newpass');
+
+To grant typical development permissions:
+  grant all on your_database.* to 'your_user'@'localhost'
+
+To dump schema:
+  mysqldump --user=username --password=secret mydatabase --no-data=true --add-drop-table=false > mydatabase_schema.sql  
+
+
+== Queries for Debugging
+
+To find foos that should have bars, but are orphaned:
+
+  select foos.id from foos left outer join bars on foos.bar_id=bars.id where bars.id is null;
+
+To find foos and bars that should be one-to-one, but are orphaned:
+
+  select foos.id as foos_id, bars.id as bars_id 
+    from foos left outer join bars on foos.bar_id=bars.id
+    where bars.id is null
+  union all
+  select foos.id as foos_id, bars.id as bars_id 
+    from bars left outer join foos on bars.id=foos.bar_id
+    where foos.id is null;

@@ -1,0 +1,16 @@
+#!/bin/sh
+#
+# Clone a mysql database within the same database server,
+# by using mysqldump then piping the results to mysql.
+#
+# This script first tries to create the clone database;
+# if it already exists, then it will be overwritten.
+# 
+# Syntax:
+#   mysql-clone <from_username> <from_password> <from_database_name> <to_database_name>
+#
+# Example to clone from database "apples" to database "oranges":
+#   mysql-clone --user=joe --password=secret apples oranges
+
+mysql $1 $2 -e "create database $4" 2>/dev/null
+mysqldump $1 $2 $3 | mysql $1 $2 $4

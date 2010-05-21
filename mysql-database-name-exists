@@ -1,0 +1,4 @@
+#!/bin/sh
+schema_name=$1
+shift
+mysql -e "SELECT count(SCHEMA_NAME) FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$schema_name';" --batch --reconnect --show-warning --silent $*

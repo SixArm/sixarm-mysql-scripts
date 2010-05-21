@@ -1,0 +1,4 @@
+mysqldump --no-data=true --add-drop-table=false "$@"
+
+
+

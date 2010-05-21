@@ -1,0 +1,18 @@
+#!/bin/bash
+
+database_stem=$1 
+database_user=$2
+
+function create_database_and_grant() {
+  echo "create database $1; grant all on $1.* to $2;"
+}
+
+echo "To create MySQL Rails databases, run these commands:"
+
+for suffix in development test production
+do
+  create_database_and_grant ${database_stem}_${suffix} $database_user
+done
+
+
+
