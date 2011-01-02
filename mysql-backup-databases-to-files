@@ -1,0 +1,4 @@
+#!/bin/sh
+# Backup each database to its own gzip file.
+for I in $(mysql -e 'show databases' -s --skip-column-names); do mysqldump $I | gzip > "$I.sql.gz"; done
+

@@ -1,0 +1,6 @@
+#!/bin/sh
+# We use the mysqladmin tool to return a list of the current processes,
+# and combine this with the UNIX watch command to get real-time monitoring.
+# From http://codeinthehole.com/archives/2-Monitoring-MySQL-processes.html
+
+watch -n 1 mysqladmin --user="$1" --password="$2" processlist
