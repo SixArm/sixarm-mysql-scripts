@@ -1,0 +1,55 @@
+#!/bin/bash
+#
+# Clone a mysql database within the same database server,
+# by using a fast loop that copies table-by-table.
+#
+# If the database already exists, then it will be overwritten.
+#
+# Syntax:
+#   mysql-clone-fast <from_username> <from_password> <from_database_name> <to_database_name> [<db_server_host> [<sql_before>  <sql_after>]]
+#
+# Example to clone from database "apples" to database "oranges":
+#   mysql-clone --user=joe --password=secret apples oranges
+#
+# Example to clone on a remote db server:
+#   mysql-clone --user=joe --password=secret apples oranges foo.example.com
+#
+# Example to clone with SQL that runs before and after the clone tables:
+#   mysql-clone --user=joe --password=secret apples oranges localhost "set foreign_key_checks = 0;" "set foreign_key_checks = 1;"
+#
+# The db_server_host parameter defaults to localhost.
+#
+# If you're using InnoDB and have foreign keys, you need this SQL before and SQL after:
+#  "set foreign_key_checks = 0;" "set foreign_key_checks = 1;"
+#
+# Credits:
+#   http://stackoverflow.com/questions/25794/mysql-copy-duplicate-database
+#   http://stackoverflow.com/users/242704/jozef-janitor
+
+DB_USER=$1
+DB_PASSWORD=$2
+DB_SRC_NAME=$3
+DB_DST_NAME=$4
+DB_SERVER=${5-"localhost"}  
+SQL_BEFORE=${6-""}
+SQL_AFTER=${7-""}
+
+# String buffers for the loop to build
+fCreateTable=""
+fInsertData=""
+
+# Setup
+echo "Copying database from ${DB_SRC_NAME} to ${DB_DST_NAME}... (may take a while ...)"
+DB_CONN="-h ${DB_SERVER} ${DB_USER} ${DB_PASSWORD}"
+echo "DROP DATABASE IF EXISTS ${DB_DST_NAME}" | mysql ${DB_CONN}
+echo "CREATE DATABASE ${DB_DST_NAME}" | mysql ${DB_CONN}
+
+# Loop on each table
+for TABLE in `echo "SHOW TABLES" | mysql $DB_CONN $DB_SRC_NAME | tail -n +2`; do
+        createTable=`echo "SHOW CREATE TABLE ${TABLE}"|mysql -B -r $DB_CONN $DB_SRC_NAME|tail -n +2|cut -f 2-`
+        fCreateTable="${fCreateTable} ; ${createTable}"
+        insertData="INSERT INTO ${DB_DST_NAME}.${TABLE} SELECT * FROM ${DB_SRC_NAME}.${TABLE}"
+        fInsertData="${fInsertData} ; ${insertData}"
+done;
+
+echo "$SQL_BEFORE $fCreateTable ; $fInsertData ; $SQL_AFTER" | mysql $DB_CONN $DB_DST_NAME
