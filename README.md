@@ -1,1 +1,1 @@
-# SixArm.com → MySQL scripts for database administration
+# MySQL scripts for database administration
